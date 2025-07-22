@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List PWA</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/dark-mode.css" id="dark-mode-style" disabled>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4285f4">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Todo List</h1>
+            <div class="header-controls">
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Search todos...">
+                    <button id="search-btn">🔍</button>
+                </div>
+                <button id="dark-mode-toggle">🌓</button>
+            </div>
+        </header>
+        
+        <div class="groups-container">
+            <div class="groups-sidebar">
+                <h2>Groups</h2>
+                <button id="add-group-btn">+ Add Group</button>
+                <ul id="groups-list"></ul>
+            </div>
+            
+            <div class="todos-main">
+                <div class="current-group-header">
+                    <h2 id="current-group-name">Select a Group</h2>
+                    <div class="group-actions">
+                        <button id="edit-group-btn" disabled>Edit</button>
+                        <button id="delete-group-btn" disabled>Delete</button>
+                    </div>
+                </div>
+                
+                <div id="no-group-selected">
+                    <p>Select or create a group to view or add todos</p>
+                </div>
+                
+                <div id="group-content" style="display: none;">
+                    <div class="todo-controls">
+                        <div class="sort-options">
+                            <label>Sort by:</label>
+                            <select id="sort-by">
+                                <option value="created">Created Date</option>
+                                <option value="due">Due Date</option>
+                                <option value="priority">Priority</option>
+                            </select>
+                        </div>
+                        <div class="filter-options">
+                            <label>Filter:</label>
+                            <select id="filter-priority">
+                                <option value="all">All Priorities</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                            <select id="filter-status">
+                                <option value="all">All Statuses</option>
+                                <option value="completed">Completed</option>
+                                <option value="incomplete">Incomplete</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button id="add-todo-btn">+ Add Todo</button>
+                    <ul id="todos-list"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Group Modal -->
+    <div id="group-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-group-title">Add New Group</h2>
+            <input type="text" id="group-name-input" placeholder="Group name">
+            <button id="save-group-btn">Save</button>
+        </div>
+    </div>
+
+    <!-- Todo Modal -->
+    <div id="todo-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-todo-title">Add New Todo</h2>
+            <input type="text" id="todo-title-input" placeholder="Title" required>
+            <textarea id="todo-desc-input" placeholder="Description"></textarea>
+            
+            <div class="todo-meta">
+                <div>
+                    <label for="todo-due-date">Due Date:</label>
+                    <input type="date" id="todo-due-date">
+                </div>
+                <div>
+                    <label for="todo-priority">Priority:</label>
+                    <select id="todo-priority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button id="save-todo-btn">Save</button>
+        </div>
+    </div>
+
+    <script src="scripts/storage.js"></script>
+    <script src="scripts/app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/scripts/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // Install prompt for PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted install');
+                    } else {
+                        console.log('User dismissed install');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+    </script>
+</body>
+</html>
